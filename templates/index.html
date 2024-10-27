@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>For Aarushi ❤️</title>
+    <style>
+        /* Previous styles remain the same */
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #ffe6f2;
+            font-family: 'Arial Rounded MT Bold', Arial, sans-serif;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 800px;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #ff66b2;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .message {
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin: 20px 0;
+            font-size: 1.2em;
+            color: #ff4d94;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            background-color: #ff99cc;
+            color: white;
+            font-weight: bold;
+        }
+
+        button:hover {
+            transform: scale(1.1);
+        }
+
+        #yesBtn {
+            background-color: #ff66b2;
+        }
+
+        #noBtn {
+            background-color: #ff99cc;
+        }
+
+        .floating-hearts {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-hearts"></div>
+    <div class="container">
+        <h1>Hey Aarushi! 🌸</h1>
+        
+        <div class="message">
+            <!-- Replace this message with your personal message -->
+            Dear Aarushi, every time I see you, my heart skips a beat. 
+            Your smile brightens up my day like nothing else can. 
+            Would you make me the happiest person by going on a date with me? 💖
+        </div>
+
+        <div class="buttons">
+            <button id="yesBtn">Yes! 😊</button>
+            <button id="noBtn">No 🥺</button>
+        </div>
+    </div>
+
+    <script>
+        // Create floating hearts background
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.innerHTML = '💖';
+            heart.style.position = 'fixed';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.top = -20 + 'px';
+            heart.style.fontSize = (Math.random() * 20 + 10) + 'px';
+            heart.style.opacity = '0.6';
+            heart.style.animation = `fall ${Math.random() * 3 + 2}s linear`;
+            document.querySelector('.floating-hearts').appendChild(heart);
+
+            setTimeout(() => {
+                heart.remove();
+            }, 5000);
+        }
+
+        setInterval(createHeart, 300);
+
+        async function saveResponse(response) {
+            try {
+                await fetch('/save_response', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ response: response })
+                });
+            } catch (error) {
+                console.error('Error saving response:', error);
+            }
+        }
+
+        document.getElementById('yesBtn').addEventListener('click', async function() {
+            await saveResponse('yes');
+            window.location.href = '/happy';
+        });
+
+        document.getElementById('noBtn').addEventListener('click', async function() {
+            await saveResponse('no');
+            window.location.href = '/sad';
+        });
+
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fall {
+                to {
+                    transform: translateY(100vh);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

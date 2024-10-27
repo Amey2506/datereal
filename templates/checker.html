@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Check Response</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #ffe6f2;
+            font-family: 'Arial Rounded MT Bold', Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #ff66b2;
+            margin-bottom: 20px;
+        }
+
+        .response {
+            font-size: 1.2em;
+            margin: 20px 0;
+            color: #ff4d94;
+        }
+
+        .timestamp {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            background-color: #ff99cc;
+            color: white;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #ff66b2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Response Checker</h1>
+        <div class="response" id="responseText">Checking for response...</div>
+        <div class="timestamp" id="timestampText"></div>
+        <button onclick="checkResponse()">Check Again</button>
+    </div>
+
+    <script>
+        async function checkResponse() {
+            try {
+                const response = await fetch('/check_response');
+                const data = await response.json();
+                
+                const responseText = document.getElementById('responseText');
+                const timestampText = document.getElementById('timestampText');
+                
+                if (data.response) {
+                    const answer = data.response === 'yes' ? 'YES! 🎉' : 'No 😢';
+                    responseText.textContent = `Aarushi's answer: ${answer}`;
+                    timestampText.textContent = `Responded on: ${data.timestamp}`;
+                } else {
+                    responseText.textContent = 'No response yet...';
+                    timestampText.textContent = '';
+                }
+            } catch (error) {
+                console.error('Error checking response:', error);
+                document.getElementById('responseText').textContent = 'Error checking response';
+            }
+        }
+
+        // Check response immediately when page loads
+        checkResponse();
+
+        // Check response every 30 seconds
+        setInterval(checkResponse, 30000);
+    </script>
+</body>
+</html>
