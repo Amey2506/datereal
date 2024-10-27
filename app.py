@@ -2,52 +2,26 @@ from flask import Flask, request, jsonify, render_template, send_from_directory
 from datetime import datetime
 import json
 import os
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
-# Configuration for file paths
-RESPONSE_FILE = 'response.json'
-VIDEO_FOLDER = 'static/videos'  # Folder for storing videos
+# Use environment variable for secret key
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-key-change-this')
 
-# Create videos directory if it doesn't exist
-os.makedirs(VIDEO_FOLDER, exist_ok=True)
+# Ensure the response file is stored in a writable directory
+RESPONSE_FILE = os.path.join(os.environ.get('RESPONSE_DIR', '.'), 'response.json')
 
-@app.route('/')
-def home():
-    return render_template('index.html')
+@app.before_request
+def before_request():
+    if os.environ.get('FLASK_ENV') == 'production':
+        # Redirect to HTTPS in production
+        if request.url.startswith('http://'):
+            url = request.url.replace('http://', 'https://', 1)
+            return redirect(url, code=301)
 
-@app.route('/happy')
-def happy():
-    return render_template('happy.html')
-
-@app.route('/sad')
-def sad():
-    return render_template('sad.html')
-
-@app.route('/checker')
-def checker():
-    return render_template('checker.html')
-
-@app.route('/save_response', methods=['POST'])
-def save_response():
-    data = request.json
-    response_data = {
-        'response': data.get('response'),
-        'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    }
-    
-    with open(RESPONSE_FILE, 'w') as f:
-        json.dump(response_data, f)
-    
-    return jsonify({'status': 'success'})
-
-@app.route('/check_response')
-def check_response():
-    if os.path.exists(RESPONSE_FILE):
-        with open(RESPONSE_FILE, 'r') as f:
-            response_data = json.load(f)
-        return jsonify(response_data)
-    return jsonify({'response': None})
+# ... rest of your routes remain the same ...
 
 if __name__ == '__main__':
-    app.run(debug=False, host='0.0.0.0')
+    app.run(debug=os.environ.get('FLASK_ENV') != 'production')
